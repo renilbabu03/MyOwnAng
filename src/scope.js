@@ -6,6 +6,7 @@ function Scope() {
     this.$$asyncQueue = [];
     this.$$phase = null;
     this.$$applyAsyncQueue = [];
+    this.$$applyAsyncId = null;
 }
 Scope.prototype.$watch = function(watchFn, listenerFn, valueEq) {
     var watcher = {
@@ -104,15 +105,21 @@ Scope.prototype.$clearPhase = function() {
 };
 
 Scope.prototype.$applyAsync = function(expr) {
+
     var self = this;
     self.$$applyAsyncQueue.push(function() {
         self.$eval(expr);
     });
-    setTimeout(function() {
-        self.$apply(function() {
-            while (self.$$applyAsyncQueue.length) {
-                self.$$applyAsyncQueue.shift()();
-            }
-        });
-    }, 0);
+
+    if (self.$$applyAsyncId === null) {
+        self.$$applyAsyncId = setTimeout(function() {
+            self.$apply(function() {
+                while (self.$$applyAsyncQueue.length) {
+                    self.$$applyAsyncQueue.shift()();
+                }
+                self.$$applyAsyncId = null;
+            })
+        }, 0)
+    }
+
 }
