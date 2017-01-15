@@ -78,7 +78,7 @@ Scope.prototype.$apply = function(expr) {
 
 Scope.prototype.$evalAsync = function(expr) {
     var self = this;
-    if (!self.$$asyncQueue.length) {
+    if (!self.$$phase && !self.$$asyncQueue.length) {
         setTimeout(function() {
             if (self.$$asyncQueue.length) {
                 self.$digest();
