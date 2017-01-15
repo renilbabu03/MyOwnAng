@@ -20,8 +20,8 @@ Scope.prototype.$$digestOnce = function() {
     var self = this;
     var newValue, oldValue, dirty;
     _.forEach(this.$$watchers, function(watcher) {
-        newValue = watcher.watchFn(self); //
-        oldValue = watcher.last; //
+        newValue = watcher.watchFn(self);
+        oldValue = watcher.last;
         if (!self.$$areEqual(newValue, oldValue, watcher.valueEq)) {
             self.$$lastDirtyWatch = watcher;
             watcher.last = (watcher.valueEq ? _.cloneDeep(newValue) : newValue);
@@ -38,7 +38,7 @@ Scope.prototype.$digest = function() {
     var ttl = 10;
     var dirty;
     this.$$lastDirtyWatch = null;
-    this.$beginPhase("$digest");
+    // this.$beginPhase("$digest");
     do {
         while (this.$$asyncQueue.length) {
             var asyncTask = this.$$asyncQueue.shift();
@@ -46,11 +46,11 @@ Scope.prototype.$digest = function() {
         }
         dirty = this.$$digestOnce();
         if ((dirty || this.$$asyncQueue.length) && !(ttl--)) {
-            this.$clearPhase();
+            // this.$clearPhase();
             throw "10 digest iterations reached"
         }
     } while (dirty || this.$$asyncQueue.length);
-    this.$clearPhase(); +
+    // this.$clearPhase(); +
 };
 Scope.prototype.$$areEqual = function(newValue, oldValue, valueEq) {
     if (valueEq) {
@@ -68,17 +68,17 @@ Scope.prototype.$eval = function(expr, locals) {
 
 Scope.prototype.$apply = function(expr) {
     try {
-        this.$beginPhase("$apply");
+        // this.$beginPhase("$apply");
         return this.$eval(expr);
     } finally {
-        this.$clearPhase();
+        // this.$clearPhase();
         this.$digest();
     }
 }
 
 Scope.prototype.$evalAsync = function(expr) {
     var self = this;
-    if (!self.$$phase && !self.$$asyncQueue.length) {
+    if (!self.$$asyncQueue.length) {
         setTimeout(function() {
             if (self.$$asyncQueue.length) {
                 self.$digest();
@@ -91,13 +91,13 @@ Scope.prototype.$evalAsync = function(expr) {
     })
 }
 
-Scope.prototype.$beginPhase = function(phase) {
-    if (this.$$phase) {
-        throw this.$$phase + 'already in progress.';
-    }
-    this.$$phase = phase;
-};
-
-Scope.prototype.$clearPhase = function() {
-    this.$$phase = null;
-};
+// Scope.prototype.$beginPhase = function(phase) {
+//     if (this.$$phase) {
+//         throw this.$$phase + 'already in progress.';
+//     }
+//     this.$$phase = phase;
+// };
+//
+// Scope.prototype.$clearPhase = function() {
+//     this.$$phase = null;
+// };
