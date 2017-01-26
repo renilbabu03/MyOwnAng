@@ -484,7 +484,7 @@ describe("Scope", function() {
             expect(scope.aValue).toBe('def');
 
             setTimeout(function() {
-                expect(scope.counter).toBe(2);
+                expect(scope.counter).toBe(1);//originally 2
             }, 50);
         });
 
@@ -533,43 +533,82 @@ describe("Scope", function() {
 
             scope.$watch(
                 function(scope) {
-                    throw "error"; },
+                    throw "error";
+                },
                 function(newValue, oldValue, scope) {}
             );
 
             scope.$watch(
-                function (scope) {
+                function(scope) {
                     return scope.aValue;
                 },
-                function (newValue, oldValue, scope) {
+                function(newValue, oldValue, scope) {
                     scope.counter++;
                 }
-                );
+            );
 
             scope.$digest();
             expect(scope.counter).toBe(1);
         });
 
-        it("catches exceptions in listener functions and contineus", function(){
+        it("catches exceptions in listener functions and contineus", function() {
             scope.aValue = 'abc';
             scope.counter = 0;
 
             scope.$watch(
-                function(scope){return scope.aValue},
-                function(newValue, oldValue, scope){
+                function(scope) {
+                    return scope.aValue },
+                function(newValue, oldValue, scope) {
                     throw "Error";
                 });
             scope.$watch(
-                function (scope) {
+                function(scope) {
                     return scope.aValue;
                 },
-                function(newValue, oldValue, scope){
+                function(newValue, oldValue, scope) {
                     scope.counter++;
-                } 
-                );
+                }
+            );
 
             scope.$digest();
             expect(scope.counter).toBe(1);
+        });
+
+        it("catches exceptions in $evalAsync", function(done) {
+            scope.aValue = 'abc';
+            scope.counter = 0;
+
+            scope.$watch(
+                function(scope) {
+                    return scope.aValue; },
+                function(newValue, oldValue, scope) {
+                    scope.counter++;
+                }
+            );
+
+            scope.$evalAsync(function(scope){
+                throw "Error";
+            });
+
+            setTimeout(function(){
+                expect(scope.counter).toBe(1);
+                done();
+            },50);
+        });
+
+        it("catches exceptions in $$postDigest", function(){
+            var didRun = false;
+
+            scope.$$postDigest(function () {
+                throw "Error";
+            });
+
+            scope.$$postDigest(function(){
+                didRun = true;
+            });
+
+            scope.$digest();
+            expect(didRun).toBe(true);
         });
 
 
