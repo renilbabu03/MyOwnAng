@@ -471,27 +471,27 @@ describe("Scope", function() {
                     return scope.aValue;
                 },
                 function(newValue, oldValue, scope) {});
-                
-                scope.$applyAsync(function (scope) {
-                    scope.aValue = 'abc';
-                });
-                scope.$applyAsync(function (scope) {
-                    scope.aValue = 'def';
-                });
 
-                scope.$digest();
+            scope.$applyAsync(function(scope) {
+                scope.aValue = 'abc';
+            });
+            scope.$applyAsync(function(scope) {
+                scope.aValue = 'def';
+            });
+
+            scope.$digest();
+            expect(scope.counter).toBe(2);
+            expect(scope.aValue).toBe('def');
+
+            setTimeout(function() {
                 expect(scope.counter).toBe(2);
-                expect(scope.aValue).toBe('def');
-
-                setTimeout(function () {
-                    expect(scope.counter).toBe(2);
-                },50);
+            }, 50);
         });
 
-        it("runs a $$postDigest function after each digest", function () {
+        it("runs a $$postDigest function after each digest", function() {
             scope.counter = 0;
 
-            scope.$$postDigest(function(){
+            scope.$$postDigest(function() {
                 scope.counter++;
             });
 
@@ -507,18 +507,18 @@ describe("Scope", function() {
             expect(scope.counter).toBe(1);
         });
 
-        it("does not include $$postDigest in the digest", function(){
+        it("does not include $$postDigest in the digest", function() {
             scope.aValue = 'originial value';
 
-            scope.$$postDigest(function(){
+            scope.$$postDigest(function() {
                 scope.aValue = 'changed value';
             });
-            scope.$watch(function(scope){
-                return scope.aValue;
-            },
-            function (newValue, oldValue, scope) {
-                scope.watchedValue = newValue;
-            });
+            scope.$watch(function(scope) {
+                    return scope.aValue;
+                },
+                function(newValue, oldValue, scope) {
+                    scope.watchedValue = newValue;
+                });
 
             scope.$digest();
             expect(scope.watchedValue).toBe('originial value');
@@ -527,7 +527,50 @@ describe("Scope", function() {
             expect(scope.watchedValue).toBe('changed value');
         });
 
-        
+        it("catches exceptions in watch functions and continues", function() {
+            scope.aValue = 'abc';
+            scope.counter = 0;
+
+            scope.$watch(
+                function(scope) {
+                    throw "error"; },
+                function(newValue, oldValue, scope) {}
+            );
+
+            scope.$watch(
+                function (scope) {
+                    return scope.aValue;
+                },
+                function (newValue, oldValue, scope) {
+                    scope.counter++;
+                }
+                );
+
+            scope.$digest();
+            expect(scope.counter).toBe(1);
+        });
+
+        it("catches exceptions in listener functions and contineus", function(){
+            scope.aValue = 'abc';
+            scope.counter = 0;
+
+            scope.$watch(
+                function(scope){return scope.aValue},
+                function(newValue, oldValue, scope){
+                    throw "Error";
+                });
+            scope.$watch(
+                function (scope) {
+                    return scope.aValue;
+                },
+                function(newValue, oldValue, scope){
+                    scope.counter++;
+                } 
+                );
+
+            scope.$digest();
+            expect(scope.counter).toBe(1);
+        });
 
 
 
