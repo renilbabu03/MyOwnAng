@@ -384,7 +384,7 @@ describe("Scope", function() {
 
             expect(scope.counter).toBe(0);
             setTimeout(function() {
-                expect(scope.counter).toBe(1); //originial is '1'
+                expect(scope.counter).toBe(1);
                 done();
             }, 50);
         });
@@ -808,10 +808,49 @@ describe("Scope", function() {
             scope.anotherValue = 3;
             scope.$digest();
 
-            expect(gotNewValues).toEqual([1,3]);
-            expect(gotOldValues).toEqual([1,2]);
+            expect(gotNewValues).toEqual([1, 3]);
+            expect(gotOldValues).toEqual([1, 2]);
 
-        })
+        });
+
+        it("can be deregestered", function() {
+            var counter = 0;
+
+            scope.aValue = 1;
+            scope.anotherValue = 2;
+
+            var destroyGroup = scope.$watchGroup([
+                    function(scope) {
+                        return scope.aValue;
+                    },
+                    function(scope) {
+                        return scope.anotherValue;
+                    }
+                ],
+                function(newValues, oldValues, scope) {
+                    counter++;
+                });
+            scope.$digest();
+
+            scope.anotherValue = 3;
+            destroyGroup();
+            scope.$digest();
+
+            expect(counter).toEqual(1);
+        });
+
+        it("does not call the zero-watch listener when deregestered first", function() {
+            var counter = 0;
+
+            var destroyGroup = scope.$watchGroup([], function(newValues, oldValues, scope) {
+                counter++;
+            });
+
+            destroyGroup();
+            scope.$digest();
+
+            expect(counter).toEqual(0);
+        });
 
 
 
