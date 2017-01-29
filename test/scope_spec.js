@@ -484,7 +484,7 @@ describe("Scope", function() {
             expect(scope.aValue).toBe('def');
 
             setTimeout(function() {
-                expect(scope.counter).toBe(1);//originally 2
+                expect(scope.counter).toBe(1); //originally 2
             }, 50);
         });
 
@@ -557,7 +557,8 @@ describe("Scope", function() {
 
             scope.$watch(
                 function(scope) {
-                    return scope.aValue },
+                    return scope.aValue
+                },
                 function(newValue, oldValue, scope) {
                     throw "Error";
                 });
@@ -580,30 +581,31 @@ describe("Scope", function() {
 
             scope.$watch(
                 function(scope) {
-                    return scope.aValue; },
+                    return scope.aValue;
+                },
                 function(newValue, oldValue, scope) {
                     scope.counter++;
                 }
             );
 
-            scope.$evalAsync(function(scope){
+            scope.$evalAsync(function(scope) {
                 throw "Error";
             });
 
-            setTimeout(function(){
+            setTimeout(function() {
                 expect(scope.counter).toBe(1);
                 done();
-            },50);
+            }, 50);
         });
 
-        it("catches exceptions in $$postDigest", function(){
+        it("catches exceptions in $$postDigest", function() {
             var didRun = false;
 
-            scope.$$postDigest(function () {
+            scope.$$postDigest(function() {
                 throw "Error";
             });
 
-            scope.$$postDigest(function(){
+            scope.$$postDigest(function() {
                 didRun = true;
             });
 
@@ -611,7 +613,30 @@ describe("Scope", function() {
             expect(didRun).toBe(true);
         });
 
+        it("allows destroying a $watch with a removal function", function() {
+            scope.aValue = 'abc';
+            scope.counter = 0;
 
+            var destroyWatch = scope.$watch(
+                function(scope) {
+                    return scope.aValue;
+                },
+                function(newValue, oldValue, scope) {
+                    scope.counter++;
+                }
+            );
 
+            scope.$digest();
+            expect(scope.counter).toBe(1);
+
+            scope.aValue = 'def';
+            scope.$digest();
+            expect(scope.counter).toBe(2);
+
+            scope.aValue = 'ghi';
+            destroyWatch();
+            scope.$digest();
+            expect(scope.counter).toBe(2);
+        });
     })
 });
