@@ -190,7 +190,7 @@ Scope.prototype.$watchGroup = function(watchFns, listenerFn) {
                 listenerFn(newValues, newValues, self);
             }
         });
-        return function () {
+        return function() {
             shouldCall = false;
         };
     }
@@ -222,3 +222,10 @@ Scope.prototype.$watchGroup = function(watchFns, listenerFn) {
         });
     };
 };
+
+Scope.prototype.$new = function () {
+    var ChildScope = function () {    };
+    ChildScope.prototype = this;
+    var child = new ChildScope();
+    return child;
+}
