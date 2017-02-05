@@ -1076,7 +1076,7 @@ describe("Scope", function() {
             expect(child.aValueWas).toBe('abc')
         });
 
-        it("digests from root on $apply when isolated", function () {
+        it("digests from root on $apply when isolated", function() {
             var parent = new Scope();
             var child = parent.$new(true);
             var child2 = child.$new();
@@ -1093,13 +1093,13 @@ describe("Scope", function() {
                 }
             );
 
-            child2.$apply(function (scope) {
-                
+            child2.$apply(function(scope) {
+
             });
             expect(parent.counter).toBe(1);
-        }); 
+        });
 
-        it("can take some other scope as the parent", function () {
+        it("can take some other scope as the parent", function() {
 
             var prototypeParent = new Scope();
             var hierarchyParent = new Scope();
@@ -1109,7 +1109,7 @@ describe("Scope", function() {
             expect(child.a).toBe(42);
 
             child.counter = 0;
-            child.$watch(function (scope) {
+            child.$watch(function(scope) {
                 scope.counter++;
             });
 
@@ -1117,6 +1117,36 @@ describe("Scope", function() {
             expect(child.counter).toBe(0);
 
             hierarchyParent.$digest();
+            expect(child.counter).toBe(2);
+        });
+
+        it("is no longer digested when $destroy has been called", function() {
+            var parent = new Scope();
+            var child = parent.$new();
+
+            child.aValue = [1, 2, 3];
+            child.counter = 0;
+            child.$watch(
+                function(scope) {
+                    return scope.aValue;
+                },
+                function(newValue, oldValue, scope) {
+                    scope.counter++;
+                },
+                true
+            );
+
+            parent.$digest();
+            expect(child.counter).toBe(1);
+
+            child.aValue.push(4);
+            parent.$digest();
+            expect(child.counter).toBe(2);
+
+            child.$destroy();
+            child.aValue.push(5);
+
+            parent.$digest();
             expect(child.counter).toBe(2);
         });
     });

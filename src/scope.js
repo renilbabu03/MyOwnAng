@@ -64,13 +64,7 @@ Scope.prototype.$$digestOnce = function() {
         return continueLoop;
     });
     return dirty;
-}
-
-
-
-
-
-
+};
 
 Scope.prototype.$digest = function() {
     var ttl = 10;
@@ -257,10 +251,11 @@ Scope.prototype.$new = function(isolated, parent) {
         child = new ChildScope();
     }
     parent.$$children.push(child);
+    child.$parent = parent;
     child.$$watchers = [];
     child.$$children = [];
     return child;
-}
+};
 
 Scope.prototype.$$everyScope = function(fn) {
     if (fn(this)) {
@@ -270,4 +265,15 @@ Scope.prototype.$$everyScope = function(fn) {
     } else {
         return false;
     }
+};
+
+Scope.prototype.$destroy = function () {
+    if(this.$parent){
+        var siblings = this.$parent.$$children;
+        var indexOfThis = siblings.indexOf(this);
+        if(indexOfThis>=0){
+            siblings.splice(indexOfThis,1);
+        }
+    }
+    this.$$watchers = null;
 };
