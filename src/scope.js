@@ -192,15 +192,15 @@ Scope.prototype.$watchGroup = function(watchFns, listenerFn) {
         });
         return function () {
             shouldCall = false;
-        }
+        };
     }
 
     function watchGroupListener() {
         if (firstRun) {
             firstRun = false;
-            listenerFn(newValues, newValues, self)
+            listenerFn(newValues, newValues, self);
         } else {
-            listenerFn(newValues, oldValues, self)
+            listenerFn(newValues, oldValues, self);
         }
         changeReactionScheduled = false;
     }
@@ -219,6 +219,6 @@ Scope.prototype.$watchGroup = function(watchFns, listenerFn) {
     return function() {
         _.forEach(destroyFunctions, function(destroyFunction) {
             destroyFunction();
-        })
-    }
-}
+        });
+    };
+};
