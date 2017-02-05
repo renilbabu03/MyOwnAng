@@ -1074,6 +1074,29 @@ describe("Scope", function() {
 
             parent.$digest();
             expect(child.aValueWas).toBe('abc')
-        })
+        });
+
+        it("digests from root on $apply when isolated", function () {
+            var parent = new Scope();
+            var child = parent.$new(true);
+            var child2 = child.$new();
+
+            parent.aValue = 'abc';
+            parent.counter = 0;
+
+            parent.$watch(
+                function(scope) {
+                    return scope.aValue;
+                },
+                function(newValue, oldValue, scope) {
+                    scope.counter++;
+                }
+            );
+
+            child2.$apply(function (scope) {
+                
+            });
+            expect(parent.counter).toBe(1);
+        }); 
     });
 });
