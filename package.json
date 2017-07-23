@@ -4,7 +4,7 @@
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-contrib-jshint": "^1.1.0",
-    "sinon": "^1.17.7"
+    "sinon": "^2.3.8"
   },
   "dependencies": {
     "grunt-contrib-testem": "^0.5.22",
